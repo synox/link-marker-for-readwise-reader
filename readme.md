@@ -1,3 +1,9 @@
+TODO: 
+- add permissions for all sites
+- periodically sync, with limitation
+- add button to sync with readwise in the popup
+- remove unused code
+
 [Chrome Extension](https://chrome.google.com/webstore/detail/mark-as-done/eamfmbodggklinbmhfgeogcpebhfoojb?hl=de)  /  [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/mark-as-done/)
 
 # Mark as Done for Readwise Reader (Chrome & Firefox Extension)
