@@ -1,5 +1,5 @@
 {
-  "name": "mark-as-done-extension",
+  "name": "mark-as-done-readwise-reader",
   "type": "module",
   "version": "0.5.0",
   "devDependencies": {
@@ -21,8 +21,8 @@
     "prebuild:firefox": "bash prepare-dist-folders.sh firefox",
     "prebuild:chrome": "bash prepare-dist-folders.sh chrome",
     "build": "npm run lint && npm run build:firefox && npm run build:chrome",
-    "build:firefox": "web-ext build --overwrite-dest  --source-dir ./dist/firefox  --artifacts-dir web-ext-artifacts/firefox --filename mark_as_done.xpi",
-    "build:chrome": "web-ext  build --overwrite-dest  --source-dir ./dist/chrome   --artifacts-dir web-ext-artifacts/chrome  --filename mark_as_done.xpi",
+    "build:firefox": "web-ext build --overwrite-dest  --source-dir ./dist/firefox  --artifacts-dir web-ext-artifacts/firefox --filename mark_as_done_readwise.xpi",
+    "build:chrome": "web-ext  build --overwrite-dest  --source-dir ./dist/chrome   --artifacts-dir web-ext-artifacts/chrome  --filename mark_as_done_readwise.xpi",
     "lint:js": "eslint . ; npm run build:firefox && web-ext lint --source-dir ./dist/firefox",
     "lint:css": "stylelint 'src/**/*.css' ",
     "lint": "npm run lint:js && npm run lint:css",
@@ -42,13 +42,13 @@
         {
           "assets": [
             {
-              "path": "web-ext-artifacts/firefox/mark_as_done.xpi",
-              "name": "mark_as_done-firefox.xpi",
+              "path": "web-ext-artifacts/firefox/mark_as_done_readwise.xpi",
+              "name": "mark_as_done_readwise-firefox.xpi",
               "label": "Firefox extension"
             },
             {
-              "path": "web-ext-artifacts/chrome/mark_as_done.xpi",
-              "name": "mark_as_done-chrome.xpi",
+              "path": "web-ext-artifacts/chrome/mark_as_done_readwise.xpi",
+              "name": "mark_as_done_readwise-chrome.xpi",
               "label": "Chrome extension"
             }
           ]
@@ -58,14 +58,14 @@
         "semantic-release-chrome",
         {
           "extensionId": "eamfmbodggklinbmhfgeogcpebhfoojb",
-          "asset": "web-ext-artifacts/chrome/mark_as_done.xpi",
+          "asset": "web-ext-artifacts/chrome/mark_as_done_readwise.xpi",
           "distFolder": "dist/chrome"
         }
       ],
       [
         "semantic-release-firefox-add-on",
         {
-          "targetXpi": "mark_as_done-firefox.xpi",
+          "targetXpi": "mark_as_done_readwise-firefox.xpi",
           "sourceDir": "dist/firefox",
           "channel": "listed"
         }
