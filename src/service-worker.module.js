@@ -1,12 +1,10 @@
 import {
-  getPageState, listPagesForDomain, removePageState, updatePageState, upgradeDatastore,
+  getPageState, listPagesForDomain, removePageState, updatePageState,
 } from './storage.js';
 import { getOrigin, normalizeUrl, STATUS_NONE } from './global.js';
 
 // eslint-disable-next-line import/prefer-default-export
 export function main() {
-  chrome.runtime.onInstalled.addListener(upgradeDatastore);
-
   chrome.action.setPopup({ popup: 'src/popup/popup.html' });
 
   /** on tab activation: update popup and icon, and inject scripts */
@@ -107,16 +105,6 @@ async function handleRemovePageStatus(message, sendResponse) {
   }
 
   sendResponse('remove-page done');
-}
-
-async function handleImportData(message, sendResponse) {
-  for (const entry of message.data) {
-    const { url, ...properties } = entry;
-    // eslint-disable-next-line no-await-in-loop
-    await updatePageState(url, properties);
-  }
-  await upgradeDatastore();
-  sendResponse('success');
 }
 
 async function handleGetStatusMessage(message, sendResponse) {

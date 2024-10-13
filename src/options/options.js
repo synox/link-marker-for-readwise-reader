@@ -1,80 +1,70 @@
-import { getDataExport, listPages, updatePageState } from '../storage.js';
+import { updatePageState } from '../storage.js';
 
-function startFileDownload(filename, data) {
-  const blob = new Blob([data], { type: 'text/json' });
-  if (window.navigator.msSaveOrOpenBlob) {
-    window.navigator.msSaveBlob(blob, filename);
-  } else {
-    const elem = window.document.createElement('a');
-    elem.href = window.URL.createObjectURL(blob);
-    elem.download = filename;
-    document.body.appendChild(elem);
-    elem.click();
-    document.body.removeChild(elem);
+const fetchDocumentListApi = async (updatedAfter = null, location = null) => {
+  const fullData = [];
+  let nextPageCursor = null;
+  const { authToken } = await chrome.storage.local.get('authToken');
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const queryParams = new URLSearchParams();
+    if (nextPageCursor) {
+      queryParams.append('pageCursor', nextPageCursor);
+    }
+    if (updatedAfter) {
+      queryParams.append('updatedAfter', updatedAfter);
+    }
+    if (location) {
+      queryParams.append('location', location);
+    }
+    console.log(`Making export api request with params ${queryParams.toString()}`);
+
+    // eslint-disable-next-line no-await-in-loop
+    const response = await fetch(`https://readwise.io/api/v3/list/?${queryParams.toString()}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Token ${authToken}`,
+      },
+    });
+    // eslint-disable-next-line no-await-in-loop
+    const responseJson = await response.json();
+    fullData.push(...responseJson.results);
+    nextPageCursor = responseJson.nextPageCursor;
+    if (!nextPageCursor) {
+      break;
+    }
+  }
+  return fullData;
+};
+
+async function syncState() {
+  function mapProperties(page, status) {
+    return {
+      id: page.id,
+      title: page.title,
+      status,
+      location: page.location,
+    };
+  }
+
+  const doneDocuments = await fetchDocumentListApi(null, 'archive');
+  const newDocuments = await fetchDocumentListApi(null, 'new');
+  const laterDocuments = await fetchDocumentListApi(null, 'later');
+
+  for (const doc of doneDocuments) {
+    // eslint-disable-next-line no-await-in-loop
+    await updatePageState(doc.url, mapProperties(doc, 'done'));
+  }
+  for (const doc of [...newDocuments, ...laterDocuments]) {
+    // eslint-disable-next-line no-await-in-loop
+    await updatePageState(doc.url, mapProperties(doc, 'todo'));
   }
 }
 
-document.getElementById('exportButton').addEventListener('click', async () => {
-  const result = await getDataExport();
+document.querySelector('#loginForm button').addEventListener('click', async () => {
+  const token = document.querySelector('#loginForm input').value;
+  await chrome.storage.local.set({ authToken: token });
 
-  startFileDownload('marked-as-done-all.json', JSON.stringify(result));
-});
-
-document.getElementById('importButton').addEventListener('click', () => {
-  document.getElementById('upload').click();
-});
-
-document.getElementById('upload').addEventListener(
-  'change',
-  function handleFiles() {
-    if (this.files.length === 0) {
-      console.error('No file selected.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async function fileReadCompleted() {
-      // When the reader is done, the content is in reader.result.
-      const data = JSON.parse(reader.result);
-      const response = await chrome.runtime.sendMessage({ type: 'import-data', data });
-      document.getElementById('importStatus').append(`import completed. status: ${response}`);
-    };
-
-    reader.readAsText(this.files[0]);
-  },
-  false,
-);
-
-document.getElementById('resetAllDataButton').addEventListener('click', async (event) => {
-  if (event.target.textContent !== 'Are you sure?') {
-    event.target.textContent = 'Are you sure?';
-  } else {
-    await chrome.storage.local.clear();
-    event.target.textContent = 'Done';
-  }
-});
-
-document.getElementById('updateTitles').addEventListener('click', async () => {
-  const withoutTitle = (await listPages())
-    .filter((page) => !page.properties.title);
-
-  for (const page of withoutTitle) {
-    try {
-      // eslint-disable-next-line no-await-in-loop
-      const response = await fetch(page.url);
-      if (response.ok) {
-        // eslint-disable-next-line no-await-in-loop
-        const text = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/html');
-        const title = doc.querySelector('title')?.textContent;
-        if (title) {
-          // eslint-disable-next-line no-await-in-loop
-          await updatePageState(page.url, { title });
-        }
-      }
-    } catch (error) {
-      console.log('cannot update title for ', page.url);
-    }
-  }
+  await syncState();
+  document.querySelector('#loginForm #submitStatus').textContent = 'Synced!';
 });
