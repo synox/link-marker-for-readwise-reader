@@ -40,10 +40,13 @@ export function normalizeUrl(url) {
     const urlObject = new URL(url);
     // In general, hash are ignored.
 
+    // Ignore utm_source
+    let filteredSearch = urlObject.search.replace(/utm_source=.*$/, '');
+
     // Search parameters must be respected for confluence-wiki. (/pages/viewpage.action?pageId=123)
     // but on other pages the "?lang=en" should be ignored.
 
-    let filteredSearch = urlObject.search.replace(/lang=.*$/, '');
+    filteredSearch = urlObject.search.replace(/lang=.*$/, '');
 
     // In confluence-wiki, there is a suffix when clicking the sidebar which should be ignored.
     // https://wiki.corp.example.com/display/ABC/Link?src=contextnavpagetreemode
