@@ -37,6 +37,7 @@ const fetchDocumentListApi = async (updatedAfter = null, location = null) => {
   return fullData;
 };
 
+// TODO: move to service worker. Use bulk import instead of individual updates. Clear before updates.
 async function syncState() {
   function mapProperties(page, status) {
     return {
@@ -44,6 +45,7 @@ async function syncState() {
       title: page.title,
       status,
       location: page.location,
+      readwiseReaderUrl: page.url,
     };
   }
 
@@ -53,11 +55,11 @@ async function syncState() {
 
   for (const doc of doneDocuments) {
     // eslint-disable-next-line no-await-in-loop
-    await updatePageState(doc.url, mapProperties(doc, 'done'));
+    await updatePageState(doc.source_url, mapProperties(doc, 'done'));
   }
   for (const doc of [...newDocuments, ...laterDocuments]) {
     // eslint-disable-next-line no-await-in-loop
-    await updatePageState(doc.url, mapProperties(doc, 'todo'));
+    await updatePageState(doc.source_url, mapProperties(doc, 'todo'));
   }
 }
 

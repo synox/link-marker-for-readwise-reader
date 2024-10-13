@@ -59,19 +59,13 @@ function readPageStateFromStorageValue(url, value) {
   return new PageInfo(url, value);
 }
 
-export async function getDataExport() {
-  const allItems = await chrome.storage.local.get(null);
-  return Object.entries(allItems)
-    .map(([url, value]) => ({ url, ...value }))
-    .sort();
-}
-
 /**
  @returns {Promise<Map<string,Array.<PageInfo>>>}
  */
 export async function listPages() {
   const allItems = await chrome.storage.local.get(null);
   return Object.entries(allItems)
+    .filter(([key]) => key.startsWith('http'))
     .map(([url, value]) => new PageInfo(url, value))
     .sort();
 }

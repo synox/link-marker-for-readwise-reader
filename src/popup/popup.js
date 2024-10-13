@@ -145,6 +145,7 @@ class Popup {
       pages = await listPages();
     }
 
+    console.log('pages', pages);
     // use unsaved data from optimistic updates
     // eslint-disable-next-line guard-for-in
     for (const url in this.optimisticUpdates) {
