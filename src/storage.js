@@ -18,6 +18,12 @@ export async function getPageState(url) {
   return readPageStateFromStorageValue(url, valueWrapper[url]);
 }
 
+export async function clearAllPages() {
+  const { authToken } = await chrome.storage.local.get('authToken');
+  chrome.storage.local.clear();
+  await chrome.storage.local.set({ authToken });
+}
+
 /**
  * Update the status of a page
  * @param url {string}
