@@ -3,6 +3,7 @@ TODO:
 - periodically sync, with limitation
 - add button to sync with readwise in the popup
 - remove unused code
+- add button in popup to open open readwise reader
 
 [Chrome Extension](https://chrome.google.com/webstore/detail/mark-as-done/eamfmbodggklinbmhfgeogcpebhfoojb?hl=de)  /  [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/mark-as-done/)
 
