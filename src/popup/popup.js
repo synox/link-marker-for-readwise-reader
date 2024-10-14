@@ -1,4 +1,6 @@
-import { getPageState, listPages, listPagesForDomain } from '../storage.js';
+import {
+  getPageState, isAuthenticated, listPages, listPagesForDomain,
+} from '../storage.js';
 import {
   getOrigin, isValidUrl, normalizeUrl, STATUS_NONE,
 } from '../global.js';
@@ -40,6 +42,12 @@ class Popup {
   }
 
   async updatePopup() {
+    if (!(await isAuthenticated())) {
+      document.getElementById('warnings').textContent = 'Please open the settings and sign in to use this extension.';
+      document.getElementById('warnings').style.display = 'block';
+      document.body.classList.remove('body-hidden');
+      return;
+    }
     const currentDomainFilter = document.getElementById('current-domain-filter');
     if (isValidUrl(this.tab.url)) {
       currentDomainFilter.closest('label').querySelector('span').textContent = new URL(this.tab.url).hostname;

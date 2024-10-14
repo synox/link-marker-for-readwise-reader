@@ -1,5 +1,9 @@
 import { normalizeUrl, PageInfo } from './global.js';
 
+export async function isAuthenticated() {
+  const { authToken } = await chrome.storage.local.get('authToken');
+  return authToken?.length > 2;
+}
 /**
  * get state of a page
  * @param url

@@ -116,9 +116,5 @@ customElements.define('page-entry', class PageEntry extends HTMLElement {
       : '';
 
     this.shadowRoot.querySelector('.reader-link').href = this.getAttribute('readwiseReaderUrl');
-
-    this.shadowRoot.querySelector('button').addEventListener('click', () => {
-      this.dispatchEvent(new CustomEvent('remove', { detail: { url: this.getAttribute('url') } }));
-    });
   }
 });

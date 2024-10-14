@@ -3,8 +3,9 @@ import {
 } from './storage.js';
 import { getOrigin, normalizeUrl } from './global.js';
 
-// eslint-disable-next-line import/prefer-default-export
-export function main() {
+const MINUTES = 1000 * 60;
+
+function main() {
   chrome.action.setPopup({ popup: 'src/popup/popup.html' });
 
   /** on tab activation: update popup and icon, and inject scripts */
@@ -44,6 +45,8 @@ export function main() {
     // Return true to indicate that the response should be sent asynchronously
     return true;
   });
+
+  setInterval(syncState, 15 * MINUTES);
 }
 
 const fetchDocumentListApi = async (updatedAfter = null, location = null) => {
