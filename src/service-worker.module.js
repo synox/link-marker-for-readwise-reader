@@ -1,11 +1,11 @@
 import {
-  getPageState, listPagesForDomain, initStorage, replacePagesState, listPages,
+  getPageState, listPagesForDomain, replacePagesState, listPages,
 } from './storage.js';
 import { getOrigin, normalizeUrl, PageInfo } from './global.js';
 
 const MINUTES = 1000 * 60;
 
-async function main() {
+function main() {
   chrome.action.setPopup({ popup: 'src/popup/popup.html' });
 
   /** on tab activation: update popup and icon, and inject scripts */

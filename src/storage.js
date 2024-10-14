@@ -1,4 +1,4 @@
-import { normalizeUrl, PageInfo } from './global.js';
+import { normalizeUrl } from './global.js';
 
 /** @type {Map<string, PageInfo>} */
 let pagesCache = null; // intentionally null to detect when not initialized properly

@@ -1,6 +1,4 @@
-import {
-  isAuthenticated, listPagesForDomain,
-} from '../storage.js';
+import { isAuthenticated } from '../storage.js';
 import {
   getOrigin, isValidUrl, normalizeUrl, STATUS_NONE,
 } from '../global.js';

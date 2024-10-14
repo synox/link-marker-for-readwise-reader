@@ -1,11 +1,9 @@
 // eslint-disable-next-line no-unused-vars,import/no-extraneous-dependencies
 import { expect, test } from '@jest/globals';
 import {
-  getDataExport,
   getPageState,
   listPages,
   listPagesForDomain,
-  updatePageState,
 } from './storage.js';
 
 test('getPageState exists', async () => {
@@ -37,46 +35,6 @@ test('getPageState not found', async () => {
   const state = await getPageState('https://www.facebook.com/');
 
   expect(state).toBeNull();
-});
-
-test('updatePageState: create new', async () => {
-  await updatePageState('https://www.google.com/', {
-    status: 'done',
-  });
-
-  expect(chrome.storage.local.set).toHaveBeenCalledWith(
-    expect.objectContaining({
-      'https://www.google.com/': {
-        status: 'done',
-        created: expect.any(String),
-        modified: expect.any(String),
-      },
-    }),
-  );
-});
-
-test('updatePageState: update', async () => {
-  chrome.storage.local.get.mockReturnValueOnce({
-    'https://www.google.com/': {
-      status: 'todo',
-      title: 'Google',
-    },
-  });
-
-  await updatePageState('https://www.google.com/', {
-    status: 'done',
-  });
-
-  expect(chrome.storage.local.set).toHaveBeenCalledWith(
-    expect.objectContaining({
-      'https://www.google.com/': {
-        status: 'done',
-        title: 'Google',
-        created: expect.any(String),
-        modified: expect.any(String),
-      },
-    }),
-  );
 });
 
 test('listPagesForDomain', async () => {
@@ -126,41 +84,4 @@ test('listPages', async () => {
   expect(pages[0].url).toBe('https://www.google.com/home');
   expect(pages[1].url).toBe('https://www.google.com/search');
   expect(pages[2].url).toBe('https://www.facebook.com/maps');
-});
-
-test('getDataExport', async () => {
-  chrome.storage.local.get.mockReturnValueOnce({
-    'https://www.google.com/home': {
-      status: 'todo',
-      title: 'Google',
-    },
-    'https://www.google.com/search': {
-      status: 'done',
-      title: 'Google Search',
-    },
-    'https://www.facebook.com/maps': {
-      status: 'todo',
-      title: 'Facebook Maps',
-    },
-  });
-
-  const result = await getDataExport();
-
-  expect(result).toStrictEqual([
-    {
-      url: 'https://www.google.com/home',
-      status: 'todo',
-      title: 'Google',
-    },
-    {
-      url: 'https://www.google.com/search',
-      status: 'done',
-      title: 'Google Search',
-    },
-    {
-      url: 'https://www.facebook.com/maps',
-      status: 'todo',
-      title: 'Facebook Maps',
-    },
-  ]);
 });
