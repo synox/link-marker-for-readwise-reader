@@ -98,7 +98,6 @@ customElements.define('page-entry', class PageEntry extends HTMLElement {
         <span class="date"></span>
     </p>
 </a>
-<button class="outline"><img src="${chrome.runtime.getURL('images/trash-can.svg')}" alt="remove"></button>
     `;
 
     // attributes are not present from beginning, so we have to assume they are optional

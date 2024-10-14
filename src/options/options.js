@@ -1,5 +1,3 @@
-import { updatePageState } from '../storage.js';
-
 document.querySelector('#loginForm button').addEventListener('click', async () => {
   const token = document.querySelector('#loginForm input').value;
   await chrome.storage.local.set({ authToken: token });

@@ -1,11 +1,6 @@
 import { getPageState, listPages, listPagesForDomain } from '../storage.js';
 import {
-  ensureSitePermissions,
-  getOrigin,
-  isValidUrl, normalizeUrl,
-  PageInfo,
-  STATUS_NONE,
-
+  getOrigin, isValidUrl, normalizeUrl, STATUS_NONE,
 } from '../global.js';
 import { filterPages, sortWithCurrentFirst } from '../filter-utils.js';
 
@@ -35,15 +30,6 @@ class Popup {
   }
 
   initEventHandlers() {
-    const changeStatus = (event) => {
-      event.preventDefault();
-      // we cannot use async/await here because we can only request permissions from a user gesture.
-      ensureSitePermissions(this.tab.url).then(() => {
-        this.handleChangeCurrentPageState(event.target.dataset.newStatus);
-      });
-    };
-    document.getElementById('mark-as-unread-button').addEventListener('click', changeStatus);
-    document.getElementById('mark-as-finished-button').addEventListener('click', changeStatus);
     document.getElementById('settings-button').addEventListener('click', (event) => {
       event.preventDefault();
       chrome.runtime.openOptionsPage();
@@ -53,51 +39,7 @@ class Popup {
     document.querySelector('[role="search"]').addEventListener('change', () => this.replacePagesInPopup());
   }
 
-  handleChangeCurrentPageState(status) {
-    const tabUrl = this.tab.url;
-    const properties = { status, title: this.tab.title };
-
-    // not waiting for response to not block user interaction
-    chrome.runtime.sendMessage({
-      type: 'change-page-status',
-      tab: this.tab,
-      url: tabUrl,
-      properties,
-    });
-
-    // do optimistic local data update, assuming the change will be successful
-    if (!this.pageInfo) {
-      this.pageInfo = new PageInfo(tabUrl);
-    }
-    this.pageInfo.properties.status = status;
-    this.pageInfo.properties.title = this.tab.title;
-    this.optimisticUpdates[tabUrl] = this.pageInfo;
-
-    // noinspection ES6MissingAwait
-    this.updatePopup();
-
-    setTimeout(window.close, 800);
-  }
-
   async updatePopup() {
-    if (!isValidUrl(this.tab.url)) {
-      // invalid url
-      document.getElementById('mark-as-unread-button').classList.add('hidden');
-      document.getElementById('mark-as-finished-button').classList.add('hidden');
-    } else if (this.pageInfo && this.pageInfo.properties.status === 'todo') {
-      // already marked as unread
-      document.getElementById('mark-as-unread-button').classList.add('hidden');
-      document.getElementById('mark-as-finished-button').classList.remove('hidden');
-    } else if (this.pageInfo && this.pageInfo.properties.status === 'done') {
-      // already marked as finished
-      document.getElementById('mark-as-unread-button').classList.add('hidden');
-      document.getElementById('mark-as-finished-button').classList.add('hidden');
-    } else {
-      // no status yet
-      document.getElementById('mark-as-unread-button').classList.remove('hidden');
-      document.getElementById('mark-as-finished-button').classList.add('hidden');
-    }
-
     const currentDomainFilter = document.getElementById('current-domain-filter');
     if (isValidUrl(this.tab.url)) {
       currentDomainFilter.closest('label').querySelector('span').textContent = new URL(this.tab.url).hostname;
