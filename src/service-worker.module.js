@@ -1,7 +1,7 @@
 import {
-  getPageState, clearAllPages, listPagesForDomain, removePageState, updatePageState,
+  getPageState, clearAllPages, listPagesForDomain, updatePageState,
 } from './storage.js';
-import { getOrigin, normalizeUrl, STATUS_NONE } from './global.js';
+import { getOrigin, normalizeUrl } from './global.js';
 
 // eslint-disable-next-line import/prefer-default-export
 export function main() {
@@ -26,12 +26,6 @@ export function main() {
   /** react to messages from the popup, settings and content scripts */
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Status changed in popup
-    if (message.type === 'change-page-status') {
-      handleChangePageStatus(message, sendResponse);
-    }
-    if (message.type === 'remove-page') {
-      handleRemovePageStatus(message, sendResponse);
-    }
 
     if (message.type === 'sync-data') {
       syncState(sendResponse);
@@ -111,6 +105,8 @@ async function syncState(sendResponse) {
     // eslint-disable-next-line no-await-in-loop
     await updatePageState(doc.source_url, mapProperties(doc, 'todo'));
   }
+
+  await updateLinksInAllTabs();
   return sendResponse('done');
 }
 
@@ -136,42 +132,6 @@ async function injectContentScripts(tab) {
   }
 }
 
-/**
- * @param message {{url, tab, properties: {title, status: LinkStatus,} }} Note that the url and title can be different from the tab.
- * @param sendResponse
- * @return {Promise<void>}
- */
-async function handleChangePageStatus(message, sendResponse) {
-  if (message.properties.status === 'none') {
-    await removePageState(normalizeUrl(message.url));
-  } else {
-    await updatePageState(normalizeUrl(message.url), message.properties);
-  }
-  await updateLinksInAllTabs();
-  await updateIcon(message.tab.id, message.properties.status);
-
-  // not waiting for the injection to complete:
-  injectContentScripts(message.tab).catch(console.error);
-  sendResponse('change-page-status done');
-}
-
-/**
- *
- * @param message {{tabId, tabUrl, url}} Note that the url and title can be different from the tab.
- * @param sendResponse
- * @return {Promise<void>}
- */
-async function handleRemovePageStatus(message, sendResponse) {
-  await removePageState(normalizeUrl(message.url));
-  await updateLinksInAllTabs();
-
-  if (message.tabUrl === message.url) {
-    await updateIcon(message.tabId, STATUS_NONE);
-  }
-
-  sendResponse('remove-page done');
-}
-
 async function handleGetStatusMessage(message, sendResponse) {
   const pageInfo = await getPageState(normalizeUrl(message.url));
   sendResponse(pageInfo?.properties?.status || 'none');
@@ -187,56 +147,6 @@ async function handleGetStatusMessageAsBatch(message, sendResponse) {
     }
   }));
   sendResponse(resultMap);
-}
-
-// eslint-disable-next-line no-unused-vars
-async function createDynamicIcon(status) {
-  const canvas = new OffscreenCanvas(32, 32);
-  const context = canvas.getContext('2d');
-  context.clearRect(0, 0, 32, 32);
-
-  /// / -----
-
-  const lineWidth = 5;
-
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
-  const radius = canvas.width / 2 - 2; // 5px for padding
-  const startAngle = -0.5 * Math.PI; // Start from the top
-  const progress = 0.75; // 75% progress
-
-  // Clear the canvas
-  context.clearRect(0, 0, canvas.width, canvas.height);
-
-  let statusImage;
-  if (status === 'none') statusImage = 'icon-none';
-  if (status === 'todo') statusImage = 'chevron';
-  if (status === 'done') statusImage = 'icon-done';
-
-  const image = await fetch(chrome.runtime.getURL(`images/${statusImage}.png`));
-  const imageBlob = await image.blob();
-  // convert blob to bitmap
-  const imageBitmap = await createImageBitmap(imageBlob);
-  const padding = 8;
-  context.drawImage(imageBitmap, padding, padding, canvas.width - padding - 7, canvas.height - padding - 7);
-  // context.drawImage(imageBitmap, padding, padding, 32, 32);
-
-  // Draw the progress arc
-  context.beginPath();
-  context.arc(centerX, centerY, radius, startAngle, startAngle + progress * 2 * Math.PI);
-  context.lineWidth = lineWidth;
-  context.strokeStyle = '#1665ed';
-  context.stroke();
-
-  // Draw the rest of the line in gray
-  context.beginPath();
-  context.arc(centerX, centerY, radius, startAngle + progress * 2 * Math.PI, startAngle + 2 * Math.PI);
-  context.lineWidth = lineWidth;
-  context.strokeStyle = '#eee';
-  context.stroke();
-
-  const imageData = context.getImageData(0, 0, 32, 32);
-  return imageData;
 }
 
 /**
