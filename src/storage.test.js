@@ -5,7 +5,6 @@ import {
   getPageState,
   listPages,
   listPagesForDomain,
-  removePageState,
   updatePageState,
 } from './storage.js';
 
@@ -78,12 +77,6 @@ test('updatePageState: update', async () => {
       },
     }),
   );
-});
-
-test('removePageState', async () => {
-  await removePageState('https://www.google.com/');
-
-  expect(chrome.storage.local.remove).toHaveBeenCalledWith('https://www.google.com/');
 });
 
 test('listPagesForDomain', async () => {

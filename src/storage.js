@@ -1,5 +1,23 @@
 import { normalizeUrl, PageInfo } from './global.js';
 
+/** @type {Map<string, PageInfo>} */
+let pagesCache = null; // intentionally null to detect when not initialized properly
+
+export async function initStorage() {
+  const result = await chrome.storage.local.get('pages');
+  if (result?.pages) {
+    pagesCache = new Map(JSON.parse(result.pages));
+  } else {
+    pagesCache = new Map();
+  }
+}
+
+export async function replacePagesState(pages) {
+  pagesCache = new Map(pages.map((page) => [page.url, page]));
+  console.log('replacing pages state with', pagesCache.size, 'entries');
+  await chrome.storage.local.set({ pages: JSON.stringify(Array.from(pagesCache.entries())) });
+}
+
 export async function isAuthenticated() {
   const { authToken } = await chrome.storage.local.get('authToken');
   return authToken?.length > 2;
@@ -7,59 +25,17 @@ export async function isAuthenticated() {
 /**
  * get state of a page
  * @param url
- * @return {Promise<PageInfo>}
+ * @return {Promise<PageInfo|null>}
  */
 export async function getPageState(url) {
+  if (!pagesCache) await initStorage();
+
   if (!url || !url.startsWith('http')) {
     return null;
   }
   url = normalizeUrl(url);
 
-  const valueWrapper = await chrome.storage.local.get(url);
-  if (!valueWrapper || Object.keys(valueWrapper).length === 0) {
-    return null;
-  }
-  return readPageStateFromStorageValue(url, valueWrapper[url]);
-}
-
-export async function clearAllPages() {
-  const { authToken } = await chrome.storage.local.get('authToken');
-  chrome.storage.local.clear();
-  await chrome.storage.local.set({ authToken });
-}
-
-/**
- * Update the status of a page
- * @param url {string}
- * @param properties {object}
- * @return {Promise<*>}
- */
-export async function updatePageState(url, properties) {
-  url = normalizeUrl(url);
-  const state = await getPageState(url);
-  const existingProperties = state?.properties || {};
-  const mergedProperties = { ...existingProperties, ...properties };
-  if (!mergedProperties.created) {
-    mergedProperties.created = new Date().toISOString();
-  }
-  mergedProperties.modified = new Date().toISOString();
-  await chrome.storage.local.set({ [url]: mergedProperties });
-  return mergedProperties;
-}
-
-/**
- * Update the status of a page
- * @param url {string}
- * @param properties {object}
- * @return {Promise<*>}
- */
-export async function internalReplacePageState(url, properties) {
-  await chrome.storage.local.set({ [url]: properties });
-}
-
-export async function removePageState(url) {
-  url = normalizeUrl(url);
-  await chrome.storage.local.remove(url);
+  return pagesCache.get(url);
 }
 
 function readPageStateFromStorageValue(url, value) {
@@ -70,13 +46,14 @@ function readPageStateFromStorageValue(url, value) {
 }
 
 /**
- @returns {Promise<Map<string,Array.<PageInfo>>>}
+ @returns {Promise<Array.<PageInfo>>}
  */
 export async function listPages() {
-  const allItems = await chrome.storage.local.get(null);
-  return Object.entries(allItems)
-    .filter(([key]) => key.startsWith('http'))
-    .map(([url, value]) => new PageInfo(url, value))
+  if (!pagesCache) await initStorage();
+
+  return Array.from(pagesCache.keys())
+    .filter((key) => key.startsWith('http'))
+    .map((url) => pagesCache.get(url))
     .sort();
 }
 
@@ -85,11 +62,12 @@ export async function listPages() {
  * @return {Promise<PageInfo[]>}
  */
 export async function listPagesForDomain(origin) {
+  if (!pagesCache) await initStorage();
+
   if (!origin) {
     return [];
   }
-  const allItems = await chrome.storage.local.get(null);
-  return Object.entries(allItems)
-    .filter(([key]) => key.startsWith(origin))
-    .map(([key, value]) => readPageStateFromStorageValue(key, value));
+  return Array.from(pagesCache.keys())
+    .filter((key) => key.startsWith(origin))
+    .map((key) => readPageStateFromStorageValue(key, pagesCache.get(key)));
 }

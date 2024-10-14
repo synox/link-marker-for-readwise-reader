@@ -1,5 +1,5 @@
 import {
-  getPageState, isAuthenticated, listPages, listPagesForDomain,
+  isAuthenticated, listPagesForDomain,
 } from '../storage.js';
 import {
   getOrigin, isValidUrl, normalizeUrl, STATUS_NONE,
@@ -19,7 +19,7 @@ class Popup {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     // eslint-disable-next-line prefer-destructuring
     this.tab = tabs[0];
-    this.pageInfo = await getPageState(this.tab.url);
+    this.pageInfo = await chrome.runtime.sendMessage({ type: 'get-status', url: this.tab.url });
 
     this.initEventHandlers();
 
@@ -92,7 +92,7 @@ class Popup {
     if (this.showOnlyCurrentDomain()) {
       pages = await listPagesForDomain(getOrigin(this.tab.url));
     } else {
-      pages = await listPages();
+      pages = await chrome.runtime.sendMessage({ type: 'list-all-pages' });
     }
 
     console.log('pages', pages);

@@ -1,11 +1,11 @@
 import {
-  getPageState, clearAllPages, listPagesForDomain, updatePageState,
+  getPageState, listPagesForDomain, initStorage, replacePagesState, listPages,
 } from './storage.js';
-import { getOrigin, normalizeUrl } from './global.js';
+import { getOrigin, normalizeUrl, PageInfo } from './global.js';
 
 const MINUTES = 1000 * 60;
 
-function main() {
+async function main() {
   chrome.action.setPopup({ popup: 'src/popup/popup.html' });
 
   /** on tab activation: update popup and icon, and inject scripts */
@@ -40,6 +40,10 @@ function main() {
     if (message.type === 'batch-get-status') {
       // noinspection JSIgnoredPromiseFromCall
       handleGetStatusMessageAsBatch(message, sendResponse);
+    }
+    if (message.type === 'list-all-pages') {
+      // noinspection JSIgnoredPromiseFromCall
+      handleListAllPagesMessage(message, sendResponse);
     }
 
     // Return true to indicate that the response should be sent asynchronously
@@ -101,18 +105,25 @@ async function syncState(sendResponse) {
   const newDocuments = await fetchDocumentListApi(null, 'new');
   const laterDocuments = await fetchDocumentListApi(null, 'later');
 
-  await clearAllPages();
+  const allDocs = [...doneDocuments, ...newDocuments, ...laterDocuments]
+    .map((doc) => {
+      if (doc.location === 'new') {
+        return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'todo'));
+      } else if (doc.location === 'later') {
+        return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'todo'));
+      } else if (doc.location === 'archive') {
+        return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'done'));
+      } else {
+        return null;
+      }
+    })
+    .filter((doc) => doc !== null);
 
-  for (const doc of doneDocuments) {
-    // eslint-disable-next-line no-await-in-loop
-    await updatePageState(doc.source_url, mapProperties(doc, 'done'));
-  }
-  for (const doc of [...newDocuments, ...laterDocuments]) {
-    // eslint-disable-next-line no-await-in-loop
-    await updatePageState(doc.source_url, mapProperties(doc, 'todo'));
-  }
+  await replacePagesState(allDocs);
 
   await updateLinksInAllTabs();
+
+  console.log('sync done with', allDocs.length, 'docs');
   return sendResponse('done');
 }
 
@@ -141,6 +152,11 @@ async function injectContentScripts(tab) {
 async function handleGetStatusMessage(message, sendResponse) {
   const pageInfo = await getPageState(normalizeUrl(message.url));
   sendResponse(pageInfo?.properties?.status || 'none');
+}
+
+async function handleListAllPagesMessage(message, sendResponse) {
+  const pages = await listPages();
+  sendResponse(pages);
 }
 
 async function handleGetStatusMessageAsBatch(message, sendResponse) {

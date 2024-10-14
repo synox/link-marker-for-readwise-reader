@@ -6,3 +6,7 @@ document.querySelector('#loginForm button').addEventListener('click', async () =
 
   document.querySelector('#loginForm #submitStatus').textContent = 'Synced!';
 });
+document.querySelector('#reloadData').addEventListener('click', async () => {
+  await chrome.runtime.sendMessage({ type: 'sync-data' });
+  document.querySelector('#loginForm #submitStatus').textContent = 'Synced!';
+});
