@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Mark as done",
+  "name": "Mark as done for Readwise Reader",
   "version": "0.5.0",
   "description": "Easily track your reading progress with automatically marked links.",
   "background.chrome": {
@@ -44,7 +44,7 @@
   "incognito": "not_allowed",
   "browser_specific_settings.firefox": {
     "gecko": {
-      "id": "{7a38b7e1-ba04-47c7-8998-ad10388b1dcf}"
+      "id": "7fa81fa1-59a5-485d-b390-6b27d9a0f690"
     }
   }
 }
