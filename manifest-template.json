@@ -44,7 +44,7 @@
   "incognito": "not_allowed",
   "browser_specific_settings.firefox": {
     "gecko": {
-      "id": "7fa81fa1-59a5-485d-b390-6b27d9a0f690"
+      "id": "{7fa81fa1-59a5-485d-b390-6b27d9a0f690}"
     }
   }
 }
