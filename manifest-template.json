@@ -24,12 +24,10 @@
   "permissions": [
     "storage",
     "tabs",
-    "activeTab",
     "scripting",
     "unlimitedStorage"
   ],
-  "host_permissions.firefox": ["http://*/*", "https://*/*"],
-  "optional_host_permissions.chrome": ["http://*/*", "https://*/*"],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "action": {
     "default_icon": {
       "128": "images/icon-none.png"
