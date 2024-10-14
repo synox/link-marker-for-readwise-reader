@@ -38,13 +38,6 @@ export async function getPageState(url) {
   return pagesCache.get(url);
 }
 
-function readPageStateFromStorageValue(url, value) {
-  if (!value) {
-    return null;
-  }
-  return new PageInfo(url, value);
-}
-
 /**
  @returns {Promise<Array.<PageInfo>>}
  */
@@ -69,5 +62,5 @@ export async function listPagesForDomain(origin) {
   }
   return Array.from(pagesCache.keys())
     .filter((key) => key.startsWith(origin))
-    .map((key) => readPageStateFromStorageValue(key, pagesCache.get(key)));
+    .map((url) => pagesCache.get(url));
 }

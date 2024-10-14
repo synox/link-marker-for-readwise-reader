@@ -45,6 +45,10 @@ async function main() {
       // noinspection JSIgnoredPromiseFromCall
       handleListAllPagesMessage(message, sendResponse);
     }
+    if (message.type === 'list-pages-for-domain') {
+      // noinspection JSIgnoredPromiseFromCall
+      handleListPagesForDomainMessage(message, sendResponse);
+    }
 
     // Return true to indicate that the response should be sent asynchronously
     return true;
@@ -156,6 +160,11 @@ async function handleGetStatusMessage(message, sendResponse) {
 
 async function handleListAllPagesMessage(message, sendResponse) {
   const pages = await listPages();
+  sendResponse(pages);
+}
+
+async function handleListPagesForDomainMessage(message, sendResponse) {
+  const pages = await listPagesForDomain(message.origin);
   sendResponse(pages);
 }
 

@@ -90,7 +90,7 @@ class Popup {
   async loadPagesToDisplay() {
     let pages;
     if (this.showOnlyCurrentDomain()) {
-      pages = await listPagesForDomain(getOrigin(this.tab.url));
+      pages = await chrome.runtime.sendMessage({ type: 'list-pages-for-domain', origin: getOrigin(this.tab.url) });
     } else {
       pages = await chrome.runtime.sendMessage({ type: 'list-all-pages' });
     }
