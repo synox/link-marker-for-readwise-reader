@@ -90,7 +90,8 @@ customElements.define('page-entry', class PageEntry extends HTMLElement {
   }
 </style>
 
-<a href="" target="_blank">
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 20px;">
+<a href="" target="_blank" style="flex: 1">
     <p class="title"></p>
     <p class="metadata">
         <span class="hostname"></span>
@@ -98,6 +99,8 @@ customElements.define('page-entry', class PageEntry extends HTMLElement {
         <span class="date"></span>
     </p>
 </a>
+<a href="" class="reader-link" target="_blank" style="flex-grow: 0;">Reader</a>
+</div>
     `;
 
     // attributes are not present from beginning, so we have to assume they are optional
@@ -111,6 +114,8 @@ customElements.define('page-entry', class PageEntry extends HTMLElement {
     this.shadowRoot.querySelector('span.date').textContent = this.getAttribute('date')
       ? new Date(this.getAttribute('date')).toLocaleDateString()
       : '';
+
+    this.shadowRoot.querySelector('.reader-link').href = this.getAttribute('readwiseReaderUrl');
 
     this.shadowRoot.querySelector('button').addEventListener('click', () => {
       this.dispatchEvent(new CustomEvent('remove', { detail: { url: this.getAttribute('url') } }));

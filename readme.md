@@ -1,9 +1,7 @@
 TODO: 
-- add permissions for all sites
-- periodically sync, with limitation
+- periodically sync, with limitation. Only fetch what changed since last poll. 
 - add button to sync with readwise in the popup
-- remove unused code
-- add button in popup to open open readwise reader
+- add permissions for all sites
 
 [Chrome Extension](https://chrome.google.com/webstore/detail/mark-as-done/eamfmbodggklinbmhfgeogcpebhfoojb?hl=de)  /  [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/mark-as-done/)
 

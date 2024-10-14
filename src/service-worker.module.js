@@ -28,13 +28,16 @@ export function main() {
     // Status changed in popup
 
     if (message.type === 'sync-data') {
+      // noinspection JSIgnoredPromiseFromCall
       syncState(sendResponse);
     }
 
     if (message.type === 'get-status') {
+      // noinspection JSIgnoredPromiseFromCall
       handleGetStatusMessage(message, sendResponse);
     }
     if (message.type === 'batch-get-status') {
+      // noinspection JSIgnoredPromiseFromCall
       handleGetStatusMessageAsBatch(message, sendResponse);
     }
 
@@ -77,7 +80,7 @@ const fetchDocumentListApi = async (updatedAfter = null, location = null) => {
       break;
     }
   }
-  return fullData;
+  return fullData.filter((doc) => !doc.parent_id);
 };
 
 async function syncState(sendResponse) {

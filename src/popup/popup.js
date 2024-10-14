@@ -115,6 +115,7 @@ class Popup {
     entry.setAttribute('date', page.properties.modified);
     entry.setAttribute('status', page.properties.status);
     entry.setAttribute('is-current', page.url === this.tab.url);
+    entry.setAttribute('readwiseReaderUrl', page.properties.readwiseReaderUrl);
 
     entry.addEventListener('remove', () => {
       this.removePageState(page.url);
