@@ -41,8 +41,15 @@ class Popup {
 
   async updatePopup() {
     if (!(await isAuthenticated())) {
-      document.getElementById('warnings').textContent = 'Please open the settings and sign in to use this extension.';
+      document.getElementById('warnings').innerHTML = `Please open the <a href="">settings</a> and 
+                sign in to use this extension.`;
+      document.querySelector('#warnings a').addEventListener('click', (event) => {
+        event.preventDefault();
+        chrome.runtime.openOptionsPage();
+      });
       document.getElementById('warnings').style.display = 'block';
+      document.querySelector('header').remove();
+      document.querySelector('main').remove();
       document.body.classList.remove('body-hidden');
       return;
     }
