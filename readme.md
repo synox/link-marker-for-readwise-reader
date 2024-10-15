@@ -3,6 +3,9 @@
 TODO: 
 - add to app stores
 - deletes are not in the API, so we are not notified when a page is deleted. Maybe do a full sync every 24h.
+- unit tests
+- branding
+- 
 
 
 [Chrome Extension](https://chrome.google.com/webstore/detail/TODO)  /  [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/TODO/)
