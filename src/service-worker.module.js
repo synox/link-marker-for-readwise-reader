@@ -63,6 +63,7 @@ function main() {
   setInterval(syncState, 15 * MINUTES);
 }
 
+// API docs: https://readwise.io/reader_api
 const fetchDocumentListApi = async (updatedAfter = null, location = null) => {
   const fullData = [];
   let nextPageCursor = null;
