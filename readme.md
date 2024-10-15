@@ -1,13 +1,17 @@
+# THIS IS ALPHA SOFTWARE
+
 TODO: 
 - periodically sync, with limitation. Only fetch what changed since last poll. 
 - add button to sync with readwise in the popup
 - add permissions for all sites
+- add to app stores
 
-[Chrome Extension](https://chrome.google.com/webstore/detail/mark-as-done/eamfmbodggklinbmhfgeogcpebhfoojb?hl=de)  /  [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/mark-as-done/)
 
-# Mark as Done for Readwise Reader (Chrome & Firefox Extension)
+[Chrome Extension](https://chrome.google.com/webstore/detail/TODO)  /  [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/TODO/)
 
-> Easily track the reading status of any page. 
+# Link Marker for Readwise Reader (Chrome & Firefox Extension)
+
+> Easily track the reading status of any page when using Readwise Reader. 
 > All the links to these pages are automatically highlighted on the original website, 
 > helping you keep track of your reading progress of large documentations or books.
 
@@ -23,8 +27,7 @@ And below is the extension popup, showing the status of pages and where you can 
 
 ## Features
 
-  -  Visual indicators for marked pages, the original website
-  -  Export and import your marked pages list
+  -  Visual indicators for marked pages, on the original website
 
 # Icons
 | Icon | Meaning                     |
@@ -36,21 +39,20 @@ And below is the extension popup, showing the status of pages and where you can 
 
 # How to Install
 
-Chrome: [Mark as Done on Chrome Web Store](https://chrome.google.com/webstore/detail/mark-as-done/eamfmbodggklinbmhfgeogcpebhfoojb?hl=de)  
-Firefox: [Mark as Done on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mark-as-done/)
+Chrome: [Mark as Done on Chrome Web Store](https://chrome.google.com/webstore/detail/TODO/TODO)  
+Firefox: [Mark as Done on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/TODO/)
 
 Or: Clone the repository and "load unpacked" as described in [Chrome Developer Guide](https://developer.chrome.com/docs/extensions/mv3/getstarted/#manifest)
 
 # Notes
 
 * Only sites that have any marked pages are processed, ensuring no slowdown for sites not used with this extension.
-* The permission is requested individually for each website, so that only the sites you use with this extension are affected.
 * The logo 🔰 means: We are constantly learning. See [Source](https://emojipedia.org/japanese-symbol-for-beginner/)
 
 # Reviews
 If you find our extension useful, please consider leaving a review on the 
-[Chrome Web Store](https://chrome.google.com/webstore/detail/mark-as-done/eamfmbodggklinbmhfgeogcpebhfoojb?hl=de) or 
-[Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mark-as-done/). Your feedback is greatly appreciated!
+[Chrome Web Store](https://chrome.google.com/webstore/detail/mark-as-done/TODO) or 
+[Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/TODO/). Your feedback is greatly appreciated!
 
 
 # Development

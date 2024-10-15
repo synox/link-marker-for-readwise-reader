@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Mark as done for Readwise Reader",
+  "name": "Link Marker for Readwise Reader",
   "version": "0.1.0",
-  "description": "Easily track your reading progress with automatically marked links.",
+  "description": "Automatically highlight links added to your Readwise Reader, making it easier to track and manage your reading progress across extensive websites. Stay organized and never lose track of important content with automatic link highlighting.",
   "background.chrome": {
     "service_worker": "src/service-worker.module.js",
     "type": "module"
