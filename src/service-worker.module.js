@@ -1,5 +1,11 @@
 import {
-  getPageState, listPagesForDomain, replacePagesState, listPages,
+  getPageState,
+  listPagesForDomain,
+  replacePagesState,
+  listPages,
+  getLastUpdateTime,
+  updatePagesState,
+  setLastUpdateTime,
 } from './storage.js';
 import { getOrigin, normalizeUrl, PageInfo } from './global.js';
 
@@ -30,7 +36,7 @@ function main() {
 
     if (message.type === 'sync-data') {
       // noinspection JSIgnoredPromiseFromCall
-      syncState(sendResponse);
+      syncState(sendResponse, message.fullReload);
     }
 
     if (message.type === 'get-status') {
@@ -94,7 +100,7 @@ const fetchDocumentListApi = async (updatedAfter = null, location = null) => {
   return fullData.filter((doc) => !doc.parent_id);
 };
 
-async function syncState(sendResponse) {
+async function syncState(sendResponse, fullReload = false) {
   function mapProperties(page, status) {
     return {
       id: page.id,
@@ -102,32 +108,51 @@ async function syncState(sendResponse) {
       status,
       location: page.location,
       readwiseReaderUrl: page.url,
+      created_at: page.created_at,
+      updated_at: page.updated_at,
     };
   }
   try {
-    const doneDocuments = await fetchDocumentListApi(null, 'archive');
-    const newDocuments = await fetchDocumentListApi(null, 'new');
-    const laterDocuments = await fetchDocumentListApi(null, 'later');
-
-    const allDocs = [...doneDocuments, ...newDocuments, ...laterDocuments]
+    let updatedAfter = await getLastUpdateTime();
+    if (fullReload) {
+      updatedAfter = null;
+    }
+    const updatedDocs = Array.from(await fetchDocumentListApi(updatedAfter))
+      // ignore non-web links
+      .filter((doc) => doc.source_url && !doc.source_url.startsWith('https://readwise.io/reader'))
+      .filter((doc) => ['new', 'later', 'archive'].includes(doc.location))
       .map((doc) => {
-        if (doc.location === 'new') {
-          return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'todo'));
-        } else if (doc.location === 'later') {
-          return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'todo'));
-        } else if (doc.location === 'archive') {
-          return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'done'));
-        } else {
-          return null;
-        }
+        let status;
+        if (doc.location === 'new' || doc.location === 'later') status = 'todo';
+        if (doc.location === 'archive') status = 'done';
+
+        return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, status));
       })
       .filter((doc) => doc !== null);
 
-    await replacePagesState(allDocs);
+    if (updatedDocs.length === 0) {
+      console.log('no new docs');
+      return sendResponse('done');
+    }
+    if (!updatedAfter || fullReload) {
+      // first load or full reload
+      await replacePagesState(updatedDocs);
+    } else {
+      await updatePagesState(updatedDocs);
+    }
+
+    // get newest updated time
+    const newestUpdatedTime = updatedDocs.reduce((acc, doc) => {
+      if (new Date(doc.properties.updated_at) > new Date(acc)) {
+        return doc.properties.updated_at;
+      }
+      return acc;
+    }, new Date(0).toISOString());
+    await setLastUpdateTime(newestUpdatedTime);
 
     await updateLinksInAllTabs();
 
-    console.log('sync done with', allDocs.length, 'docs');
+    console.log('sync done with', updatedDocs.length, 'docs');
     return sendResponse('done');
   } catch (e) {
     console.error('cannot load readwise data', e);

@@ -1,10 +1,8 @@
 # THIS IS ALPHA SOFTWARE
 
 TODO: 
-- periodically sync, with limitation. Only fetch what changed since last poll. 
-- add button to sync with readwise in the popup
-- add permissions for all sites
 - add to app stores
+- deletes are not in the API, so we are not notified when a page is deleted. Maybe do a full sync every 24h.
 
 
 [Chrome Extension](https://chrome.google.com/webstore/detail/TODO)  /  [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/TODO/)

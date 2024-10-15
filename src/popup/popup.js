@@ -125,7 +125,7 @@ class Popup {
     const entry = document.createElement('page-entry');
     entry.setAttribute('title', page.properties.title || new URL(page.url).pathname);
     entry.setAttribute('url', page.url);
-    entry.setAttribute('date', page.properties.modified);
+    entry.setAttribute('date', page.properties.created_at);
     entry.setAttribute('status', page.properties.status);
     entry.setAttribute('is-current', page.url === this.tab.url);
     entry.setAttribute('readwiseReaderUrl', page.properties.readwiseReaderUrl);

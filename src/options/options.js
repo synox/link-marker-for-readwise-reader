@@ -2,8 +2,8 @@ import { isAuthenticated, setAuthToken } from '../storage.js';
 
 const PLACEHOLDER = '******************************************';
 
-async function syncReadwiseData() {
-  const response = await chrome.runtime.sendMessage({ type: 'sync-data' });
+async function syncReadwiseData(fullReload = false) {
+  const response = await chrome.runtime.sendMessage({ type: 'sync-data', fullReload });
   const message = response === 'done' ? 'Synced!' : 'Oops, something went wrong!';
   document.querySelector('#loginForm #submitStatus').textContent = message;
 }
@@ -28,5 +28,8 @@ async function initLoginForm() {
 initLoginForm();
 
 document.querySelector('#reloadData').addEventListener('click', async () => {
-  await syncReadwiseData();
+  await syncReadwiseData(true);
+});
+document.querySelector('#updateData').addEventListener('click', async () => {
+  await syncReadwiseData(false);
 });

@@ -13,8 +13,21 @@ export async function initStorage() {
 }
 
 export async function replacePagesState(pages) {
+  if (!pagesCache) await initStorage();
+
   pagesCache = new Map(pages.map((page) => [page.url, page]));
   console.log('replacing pages state with', pagesCache.size, 'entries');
+  await chrome.storage.local.set({ pages: JSON.stringify(Array.from(pagesCache.entries())) });
+}
+
+export async function updatePagesState(pages) {
+  if (!pagesCache) await initStorage();
+
+  for (const page of pages) {
+    pagesCache.set(page.url, page);
+  }
+
+  console.log('updating pages state with', pages, 'entries');
   await chrome.storage.local.set({ pages: JSON.stringify(Array.from(pagesCache.entries())) });
 }
 
@@ -25,6 +38,15 @@ export async function isAuthenticated() {
 
 export async function setAuthToken(authToken) {
   await chrome.storage.local.set({ authToken });
+}
+
+export async function getLastUpdateTime() {
+  const { lastUpdateTime } = await chrome.storage.local.get('lastUpdateTime');
+  return lastUpdateTime;
+}
+
+export async function setLastUpdateTime(lastUpdateTime) {
+  await chrome.storage.local.set({ lastUpdateTime });
 }
 
 /**
