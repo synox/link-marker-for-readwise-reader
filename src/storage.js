@@ -22,6 +22,11 @@ export async function isAuthenticated() {
   const { authToken } = await chrome.storage.local.get('authToken');
   return authToken?.length > 2;
 }
+
+export async function setAuthToken(authToken) {
+  await chrome.storage.local.set({ authToken });
+}
+
 /**
  * get state of a page
  * @param url

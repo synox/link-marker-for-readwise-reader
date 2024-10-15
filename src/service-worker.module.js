@@ -104,31 +104,35 @@ async function syncState(sendResponse) {
       readwiseReaderUrl: page.url,
     };
   }
+  try {
+    const doneDocuments = await fetchDocumentListApi(null, 'archive');
+    const newDocuments = await fetchDocumentListApi(null, 'new');
+    const laterDocuments = await fetchDocumentListApi(null, 'later');
 
-  const doneDocuments = await fetchDocumentListApi(null, 'archive');
-  const newDocuments = await fetchDocumentListApi(null, 'new');
-  const laterDocuments = await fetchDocumentListApi(null, 'later');
+    const allDocs = [...doneDocuments, ...newDocuments, ...laterDocuments]
+      .map((doc) => {
+        if (doc.location === 'new') {
+          return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'todo'));
+        } else if (doc.location === 'later') {
+          return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'todo'));
+        } else if (doc.location === 'archive') {
+          return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'done'));
+        } else {
+          return null;
+        }
+      })
+      .filter((doc) => doc !== null);
 
-  const allDocs = [...doneDocuments, ...newDocuments, ...laterDocuments]
-    .map((doc) => {
-      if (doc.location === 'new') {
-        return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'todo'));
-      } else if (doc.location === 'later') {
-        return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'todo'));
-      } else if (doc.location === 'archive') {
-        return new PageInfo(normalizeUrl(doc.source_url), mapProperties(doc, 'done'));
-      } else {
-        return null;
-      }
-    })
-    .filter((doc) => doc !== null);
+    await replacePagesState(allDocs);
 
-  await replacePagesState(allDocs);
+    await updateLinksInAllTabs();
 
-  await updateLinksInAllTabs();
-
-  console.log('sync done with', allDocs.length, 'docs');
-  return sendResponse('done');
+    console.log('sync done with', allDocs.length, 'docs');
+    return sendResponse('done');
+  } catch (e) {
+    console.error('cannot load readwise data', e);
+    return sendResponse('error');
+  }
 }
 
 /**
